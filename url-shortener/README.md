@@ -2,7 +2,7 @@
 
 ## Overview
 
-The URL Shortener project provides a simple and efficient way to shorten long URLs. Users can also add an optional prefix to their short URLs. The project is built with Laravel for the backend and Vue.js for the frontend.
+This application allows users to shorten URLs with optional prefixes that can be part of the original URL path. The short URLs will redirect to the original URLs. The project is built with Laravel for the backend and Vue.js for the frontend.
 
 ## Features
 

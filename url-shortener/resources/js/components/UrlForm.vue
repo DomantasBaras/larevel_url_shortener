@@ -16,15 +16,6 @@
             required 
           />
         </div>
-        <div>
-          <label for="prefix" class="label">Enter Prefix</label>
-          <input 
-            type="text" 
-            v-model="prefix" 
-            class="input-field" 
-            placeholder="Enter prefix (optional)"  
-          />
-        </div>
 
         <div v-if="shortUrl" class="mt-4">
           <label for="shortUrl" class="label">Short URL</label>

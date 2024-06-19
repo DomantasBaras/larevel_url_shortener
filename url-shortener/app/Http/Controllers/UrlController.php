@@ -26,17 +26,23 @@ class UrlController extends Controller
         }
 
         $originalUrl = $request->input('original_url');
-        $prefix = $request->input('prefix', '');
+        $prefix = '';
+
+        $urlComponents = parse_url($originalUrl);
+        if (isset($urlComponents['path'])) {
+            $path = ltrim($urlComponents['path'], '/');
+            $segments = explode('/', $path);
+            if (!empty($segments[0])) {
+                $prefix = $segments[0];
+            }
+        }
 
         if (!$this->isUrlSafe($originalUrl)) {
             return response()->json(['error' => 'URL is not safe'], 400);
         }
 
-        if ($this->doesPrefixConflict($prefix)) {
-            return response()->json(['error' => 'Prefix conflicts with an existing hash'], 400);
-        }
-
         $url = Url::where('original_url', $originalUrl)->where('prefix', $prefix)->first();
+
         if (!$url) {
             $shortHash = $this->generateUniqueHash();
             $url = Url::create([
@@ -46,28 +52,20 @@ class UrlController extends Controller
             ]);
         }
 
-        $shortUrl = $prefix ? url("/$prefix/{$url->short_hash}") : url("/{$url->short_hash}");
+        $shortUrl = $prefix ? url("/{$prefix}/{$url->short_hash}") : url("/{$url->short_hash}");
+
         return response()->json(['short_url' => $shortUrl]);
     }
 
     public function redirect($prefix, $hash = null)
     {
-        // Check if $prefix actually is a hash
         if ($hash === null) {
-            if (strlen($prefix) === 6 && preg_match('/^[a-zA-Z0-9]+$/', $prefix)) {
-                $hash = $prefix;
-                $prefix = null;
-            } else {
-                $prefixExists = Url::where('prefix', $prefix)->exists();
-                if (!$prefixExists) {
-                    abort(404);
-                }
-            }
+            $hash = $prefix;
+            $prefix = '';
         }
 
         $urlQuery = Url::where('short_hash', $hash);
-
-        if ($prefix !== null) {
+        if (!empty($prefix)) {
             $urlQuery->where('prefix', $prefix);
         }
 
@@ -103,22 +101,5 @@ class UrlController extends Controller
         ]);
 
         return empty($response->json()['matches']);
-    }
-
-    private function doesPrefixConflict($prefix)
-    {
-        if (!$prefix) {
-            return false;
-        }
-
-        if (Url::where('short_hash', $prefix)->exists()) {
-            return true;
-        }
-
-        if (Url::where('prefix', $prefix)->exists()) {
-            return true;
-        }
-
-        return false;
     }
 }

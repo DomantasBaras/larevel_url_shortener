@@ -61,7 +61,7 @@ class UrlControllerTest extends TestCase
             'prefix' => 'custom'
         ]);
 
-        $response = $this->get('custom/abc123');
+        $response = $this->get('/abc123');
 
         $response->assertStatus(302);
 
