@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'google_safe_browsing' => [
+        'api_key' => env('GOOGLE_SAFE_BROWSING_API_KEY'),
+    ],
+
 ];

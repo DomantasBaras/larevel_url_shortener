@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Services\UrlValidationService;
+use App\Services\UrlSafetyService;
+use App\Services\UrlShorteningService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(UrlValidationService::class);
+        $this->app->singleton(UrlSafetyService::class);
+        $this->app->singleton(UrlShorteningService::class);
     }
 
     /**

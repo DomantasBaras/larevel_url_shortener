@@ -13,7 +13,7 @@ class UrlControllerTest extends TestCase
     /** @test */
     public function it_can_shorten_a_url_without_prefix()
     {
-        $response = $this->post('/shorten', [
+        $response = $this->postJson('/shorten', [
             'original_url' => 'https://example.com'
         ]);
 
@@ -24,9 +24,8 @@ class UrlControllerTest extends TestCase
     /** @test */
     public function it_can_shorten_a_url_with_prefix()
     {
-        $response = $this->post('/shorten', [
-            'original_url' => 'https://example.com',
-            'prefix' => 'custom'
+        $response = $this->postJson('/shorten', [
+            'original_url' => 'https://example.com/prefix'
         ]);
 
         $response->assertStatus(200);
@@ -49,23 +48,31 @@ class UrlControllerTest extends TestCase
     /** @test */
     public function it_can_redirect_to_the_original_url_with_prefix()
     {
-        $url = Url::create([
+        Url::create([
             'original_url' => 'https://example.com',
             'short_hash' => 'abc123',
-            'prefix' => 'custom'
+            'prefix' => 'prefix'
         ]);
 
-        $this->assertDatabaseHas('urls', [
-            'original_url' => 'https://example.com',
-            'short_hash' => 'abc123',
-            'prefix' => 'custom'
-        ]);
-
-        $response = $this->get('/abc123');
+        $response = $this->get('/prefix/abc123');
 
         $response->assertStatus(302);
-
         $response->assertRedirect('https://example.com');
     }
 
+    /** @test */
+    public function it_shows_404_for_non_existent_url_without_prefix()
+    {
+        $response = $this->get('/nonexistent');
+
+        $response->assertStatus(404);
+    }
+
+    /** @test */
+    public function it_shows_404_for_non_existent_url_with_prefix()
+    {
+        $response = $this->get('/prefix/nonexistent');
+
+        $response->assertStatus(404);
+    }
 }
